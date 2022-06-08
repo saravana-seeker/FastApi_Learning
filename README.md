@@ -170,6 +170,44 @@ async def create_item(item: Item):
 ```
 
 ## File Upload
+```py
+
+@app.post("/upload")
+async def upload(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        with open(file.filename, 'wb') as f:
+            f.write(contents)
+    except Exception:
+        return {"message": "There was an error uploading the file"}
+    finally:
+        await file.close()  
+    return {"message": f"Successfuly uploaded {file.filename}"}
+
+```
+
 
 ## Response Model
+https://fastapi.tiangolo.com/tutorial/response-model/
+```py
+from typing import List, Union
 
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+
+class Item(BaseModel):
+    name: str
+    description: Union[str, None] = None
+    price: float
+    tax: Union[float, None] = None
+    tags: List[str] = []
+
+
+@app.post("/items/", response_model=Item)
+async def create_item(item: Item):
+    return item
+
+```
